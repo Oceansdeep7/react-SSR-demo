@@ -1,43 +1,16 @@
-const React = require('react');
+const reactSsr  = require('./dist/src/server/middlewares/react-ssr').default;
+const Koa = require('koa2');
+const koaStatic =require('koa-static');
+const path = require('path');
 
-const { renderToString } = require('react-dom/server');
+const app = new Koa();
 
-const http = require('http');
+app.use(koaStatic(
+  path.join(__dirname, './dist/static')
+));
 
+app.use(reactSsr);
 
-//组件
-class Index extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+app.listen(9001);
 
-  render() {
-    return <h1>hello react ssr!</h1>
-  }
-}
-
-
-//服务
-http.createServer((req, res) => {
-    res.writeHead(200, {
-      'Content-Type': 'text/html'
-    });
-
-    const html = renderToString(<Index/>);
-    res.end(`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>React SSR</title>
-</head>
-<body>
-    <div id="root">
-       ${html}
-    </div>
-</body>
-</html>`);
-
-  }
-).listen(9001);
-
-console.log('server start. 9001');
+console.log('server is start .9001');
